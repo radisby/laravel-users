@@ -7,6 +7,7 @@ use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Validator;
+use App\Vendor;
 
 class UsersManagementController extends Controller
 {
@@ -75,6 +76,7 @@ class UsersManagementController extends Controller
         $data = [
             'rolesEnabled'  => $this->_rolesEnabled,
             'roles'         => $roles,
+            'vendors' => Vendor::all()
         ];
 
         return view(config('laravelusers.createUserBlade'))->with($data);
@@ -125,6 +127,7 @@ class UsersManagementController extends Controller
 
         if ($this->_rolesEnabled) {
             $user->attachRole($request->input('role'));
+            $user->vendor_id = $request->input('vendor');
             $user->save();
         }
 
@@ -160,6 +163,7 @@ class UsersManagementController extends Controller
 
         if ($this->_rolesEnabled) {
             $roles = config('laravelusers.roleModel')::all();
+            $vendors = Vendor::all();
 
             foreach ($user->roles as $user_role) {
                 $currentRole = $user_role;
@@ -174,6 +178,8 @@ class UsersManagementController extends Controller
         if ($this->_rolesEnabled) {
             $data['roles'] = $roles;
             $data['currentRole'] = $currentRole;
+            $data['vendors'] = $vendors;
+            $data['currentVendor'] = $user->vendor_id;
         }
 
         return view(config('laravelusers.editIndividualUserBlade'))->with($data);
@@ -229,6 +235,7 @@ class UsersManagementController extends Controller
         if ($this->_rolesEnabled) {
             $user->detachAllRoles();
             $user->attachRole($request->input('role'));
+            $user->vendor_id = $request->input('vendor');
         }
 
         $user->save();
